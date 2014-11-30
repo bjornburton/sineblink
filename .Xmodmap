@@ -1,3 +1,5 @@
+! This supplants the Caps_Lock fuction (rarely needed)
+! with the Escape used for mode switching in VIM
 remove Lock = Caps_Lock
 keycode  66 = Escape NoSymbol Escape
 
