@@ -15,8 +15,8 @@
 # Since it must share that directory, the original
 # avrdude should be renamed. The AVRDUDE string may
 # be pointed to the original, if desired.
-#
-#
+# Of course, this file must be named "avrdude" and
+# be made executable through "chmod +x avrdude"
 ######################################################
 
 # Which target board or device
