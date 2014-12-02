@@ -18,43 +18,55 @@ Just for fun.
 # define OFF 0
 
 /* amplitude */
-# define Y_STEPS 100
+# define Y_STEPS 100.0
 
 /* y position */
-# define X_LIMIT_RIGHT 100
-# define X_LIMIT_LEFT 0
+# define X_LIMIT_RIGHT 100.0
+# define X_LIMIT_LEFT 0.0
 # define X_STEPS  (X_LIMIT_RIGHT - X_LIMIT_LEFT)
 # define RIGHT 1
 # define LEFT -1
 
+/* Misc */
+# define SCALE 100 // used instead of floating point numbers
+
+/* Function Declatations */
+void delay(unsigned intervals);
+void ledcntl(char state);
+
 
 /**************************************************************
-The plan is to pulsate an LED in a sine wave.
+The plan is to pulsate an LED in a sine wave. Zero is no light,
+with min and max at full light. The negative is the same so
+this only rotates pi radians and then goes back.
 Minimal writes to the port is desired so just flip on, then off.
-Using a sine function to determine the duration.
+I'm using a sine function to determine the duration.
+This is duty-cycle control; at pi/2 the output is 100%, while
+at 0 an pi it is 0%. Being duty-cycle, follows power, rather
+than current.  
 ***************************************************************/
 
 int main()
  {
-  int x_position = X_LIMIT_LEFT;
+  unsigned x_position = X_LIMIT_LEFT;
   int x_direction = RIGHT;
   int amplitude;
   float angle;
    
-  {  // set the port y_directions
+  {  // set the direction to output for the LED
    DDRB |= (1<<LED_RED_DD);
   }
 
-  for (;;) // forever
+  for (;;) // forever; two loops per cycle
       {
        angle = (M_PI * x_position) / X_STEPS;
        amplitude = Y_STEPS * sin(angle);
        
        ledcntl(ON);
-       delay(amplitude);
+       delay(amplitude); // on for the duration
         
        ledcntl(OFF);
-       delay(Y_STEPS - amplitude);
+       delay(Y_STEPS - amplitude); // off for the remainder
         
 
        x_position += x_direction;
@@ -69,14 +81,15 @@ int main()
 }
 
 /* run-time variable delay in 100 us intervals */
-void delay(int intervals)
+void delay(unsigned intervals)
 {
- for(int count=intervals;count>0;count--)
-     _delay_us(100); // takes a constant
+ do  _delay_us(100);
+     while(--intervals > 0);
 }
 
-/ * simple led control */
-void ledcntl(int state)
+
+/* simple led control */
+void ledcntl(char state)
 {
   PORTB =  state ? PORTB | (1<<LED_RED) : PORTB ^ (1<<LED_RED);
 }
