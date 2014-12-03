@@ -3,8 +3,8 @@ A most inefficient Trinket led blinker!
 2014-12-30 - Bjorn Burton
 Just for fun.
 **************************************/
-
-# define F_CPU 8000000UL    // AVR clock frequency in Hz, used by util/delay.h
+// AVR clock frequency in Hz, used by util/delay.h
+# define F_CPU 8000000UL
 
 # include <avr/io.h> // need some port access
 # include <util/delay.h> // need to delay
@@ -18,17 +18,14 @@ Just for fun.
 # define OFF 0
 
 /* amplitude */
-# define Y_STEPS 100.0
+# define Y_STEPS 100.0F
 
 /* y position */
-# define X_LIMIT_RIGHT 100.0
-# define X_LIMIT_LEFT 0.0
+# define X_LIMIT_RIGHT 100.0F
+# define X_LIMIT_LEFT 0.0F
 # define X_STEPS  (X_LIMIT_RIGHT - X_LIMIT_LEFT)
 # define RIGHT 1
 # define LEFT -1
-
-/* Misc */
-# define SCALE 100 // used instead of floating point numbers
 
 /* Function Declatations */
 void delay(unsigned intervals);
@@ -37,8 +34,8 @@ void ledcntl(char state);
 
 /**************************************************************
 The plan is to pulsate an LED in a sine wave. Zero is no light,
-with min and max at full light. The negative is the same so
-this only rotates pi radians and then goes back.
+with min and max at full light. The negative is the same so we
+can just rotate pi radians and then go back.
 Minimal writes to the port is desired so just flip on, then off.
 I'm using a sine function to determine the duration.
 This is duty-cycle control; at pi/2 the output is 100%, while
@@ -48,19 +45,17 @@ than current.
 
 int main()
  {
+  char x_direction = RIGHT;
   unsigned x_position = X_LIMIT_LEFT;
-  int x_direction = RIGHT;
-  int amplitude;
-  float angle;
-   
+ 
   {  // set the direction to output for the LED
    DDRB |= (1<<LED_RED_DD);
   }
 
-  for (;;) // forever; two loops per cycle
+  for (;;) // forever - two loops per cycle
       {
-       angle = (M_PI * x_position) / X_STEPS;
-       amplitude = Y_STEPS * sin(angle);
+       float wave_portion = x_position/X_STEPS; 
+       char amplitude = Y_STEPS * sin(M_PI*wave_portion); 
        
        ledcntl(ON);
        delay(amplitude); // on for the duration
@@ -68,23 +63,22 @@ int main()
        ledcntl(OFF);
        delay(Y_STEPS - amplitude); // off for the remainder
         
+       { // location on wave
+        x_position += x_direction;
+        if(x_position == X_LIMIT_RIGHT) x_direction = LEFT;
+        if(x_position == X_LIMIT_LEFT)  x_direction = RIGHT;
+       }
 
-       x_position += x_direction;
-       
-       if(x_position == X_LIMIT_RIGHT)
-          x_direction = LEFT;
-          
-       if(x_position == X_LIMIT_LEFT)
-          x_direction = RIGHT;
       }
 
+return 0;
 }
 
 /* run-time variable delay in 100 us intervals */
 void delay(unsigned intervals)
 {
- do  _delay_us(100);
-     while(--intervals > 0);
+  while(intervals-- > 0)
+        _delay_us(100); // _delay_us takes a constant only
 }
 
 
