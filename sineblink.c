@@ -39,31 +39,31 @@ can just rotate pi radians and then go back.
 Minimal writes to the port is desired so just flip on, then off.
 I'm using a sine function to determine the duration.
 This is duty-cycle control; at pi/2 the output is 100%, while
-at 0 an pi it is 0%. Being duty-cycle, follows power, rather
+at 0 and pi it is 0%. Being duty-cycle, follows power, rather
 than current.  
 ***************************************************************/
 
 int main()
  {
-  char x_direction = RIGHT;
-  unsigned x_position = X_LIMIT_LEFT;
+  unsigned x_position = X_LIMIT_LEFT; // starting on the left
+  char x_direction = RIGHT; // moving toward the right
  
-  {  // set the direction to output for the LED
-   DDRB |= (1<<LED_RED_DD);
-  }
+    // set the direction to output for the LED
+  DDRB |= (1<<LED_RED_DD);
+  
 
   for (;;) // forever - two loops per cycle
       {
-       float wave_portion = x_position/X_STEPS; 
+       float wave_portion = x_position/X_STEPS; // figure how far over 
        char amplitude = Y_STEPS * sin(M_PI*wave_portion); 
        
-       ledcntl(ON);
-       delay(amplitude); // on for the duration
+       ledcntl(ON); // flip the led on
+       delay(amplitude); // on for the duration of wave amplitude
         
-       ledcntl(OFF);
+       ledcntl(OFF); // now flip it off
        delay(Y_STEPS - amplitude); // off for the remainder
         
-       { // location on wave
+       { // managment of location on wave
         x_position += x_direction;
         if(x_position == X_LIMIT_RIGHT) x_direction = LEFT;
         if(x_position == X_LIMIT_LEFT)  x_direction = RIGHT;
@@ -71,7 +71,7 @@ int main()
 
       }
 
-return 0;
+return 0; // it's the right thing to do!
 }
 
 /* run-time variable delay in 100 us intervals */
