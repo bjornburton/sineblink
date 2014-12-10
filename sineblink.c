@@ -30,6 +30,7 @@ Just for fun.
 /* Function Declatations */
 void delay(unsigned intervals);
 void ledcntl(char state);
+void portinit()
 
 
 /**************************************************************
@@ -41,7 +42,7 @@ sliced into intervals and each interval has a single-cycle; one
 on and one off. It appears continous since the slices are
 short. The negative portion of the wave make light too. In a
 way it is "rectified". It's the same shape and illumination so
-we can just rotate pi radians and then go back.
+we can just rotate, or move right, pi radians and then go back.
 
 Minimal writes to the port is desired so just flip on, then off.
 I'm using a sine function to determine the duration.
@@ -55,7 +56,7 @@ int main()
   unsigned x_position = X_LIMIT_LEFT; // starting on the left
   char x_direction = RIGHT; // moving toward the right
  
-    // set the direction to output for the LED
+    // set the data direction register to output-mode for the LED
   DDRB |= (1<<LED_RED_DD);
   
 
@@ -95,7 +96,7 @@ void delay(unsigned intervals)
 /* simple led control */
 void ledcntl(char state)
 {
-  PORTB =  state ? PORTB | (1<<LED_RED) : PORTB ^ (1<<LED_RED);
+  PORTB = state ? PORTB | (1<<LED_RED) : PORTB ^ (1<<LED_RED);
 }
 
 
