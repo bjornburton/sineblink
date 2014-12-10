@@ -30,7 +30,6 @@ Just for fun.
 /* Function Declatations */
 void delay(unsigned intervals);
 void ledcntl(char state);
-void portinit()
 
 
 /**************************************************************
