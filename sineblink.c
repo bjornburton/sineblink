@@ -34,8 +34,15 @@ void ledcntl(char state);
 
 /**************************************************************
 The plan is to pulsate an LED in a sine wave. Zero is no light,
-with min and max at full light. The negative is the same so we
-can just rotate pi radians and then go back.
+with wave minimum and maximum at full light.
+ 
+Intensity is controled through duty-cycle control. The wave is
+sliced into intervals and each interval has a single-cycle; one
+on and one off. It appears continous since the slices are
+short. The negative portion of the wave make light too. In a
+way it is "rectified". It's the same shape and illumination so
+we can just rotate pi radians and then go back.
+
 Minimal writes to the port is desired so just flip on, then off.
 I'm using a sine function to determine the duration.
 This is duty-cycle control; at pi/2 the output is 100%, while
@@ -54,7 +61,10 @@ int main()
 
   for (;;) // forever - two loops per cycle
       {
-       float wave_portion = x_position/X_STEPS; // figure how far over 
+       // figure how far into the wave we are
+       float wave_portion = x_position/X_STEPS; 
+
+       // sine amplitude is used for illumination duration 
        char amplitude = Y_STEPS * sin(M_PI*wave_portion); 
        
        ledcntl(ON); // flip the led on
@@ -87,4 +97,5 @@ void ledcntl(char state)
 {
   PORTB =  state ? PORTB | (1<<LED_RED) : PORTB ^ (1<<LED_RED);
 }
+
 
